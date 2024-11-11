@@ -1,0 +1,7 @@
+python-dotenv
+openai
+pydub
+websockets
+fastapi
+websocket-client
+rel
