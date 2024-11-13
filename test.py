@@ -3,10 +3,11 @@ import base64
 import json
 import uuid
 import websockets
+from prompts.test import realtime_api_test_adhoc_session_instructions_606
 
 
 async def send_periodic_message(uri):
-    audio_clients_path = ["./resources/client/client1.wav", "./resources/client/client2.wav"]
+    audio_clients_path = ["./resources/client/client_convo.wav"]#, "./resources/client/client2.wav"]
     def audio_d(file_path,id: str, prev_id: str = None,role : str = "user"):
         from pydub import AudioSegment
         import io
@@ -47,23 +48,24 @@ async def send_periodic_message(uri):
         # Use audio_bytes for creating the event
         audio_event = audio_to_item_create_event(audio_bytes,id, prev_id,role)
         return audio_event
-    
     async with websockets.connect(uri) as websocket:
+        await websocket.send(json.dumps({"ai_coach_id" : 606}))
+        await asyncio.sleep(1)
         i = 0
-        while i<len(audio_clients_path):
-            await asyncio.sleep(2)
+        while True:#i<len(audio_clients_path):
+            print()
             message = json.dumps({
                 "event_id": "convo_item_0",
                 "type": "conversation.item.create",
-                "previous_item_id": None,
+                "previous_item_id": input("Prev ID : "),
                 "item": {
-                    "id": 1,
+                    "id": input("Id: "),
                     "type": "message",
                     "role": "user",
                     "content": [
                         {
-                            "type": "input_audio",
-                            "text": audio_d(file_path=audio_clients_path[i],id=str(i),prev_id=str(i-1))
+                            "type": "input_text",
+                            "text": input("MSG : ") #audio_d(file_path=audio_clients_path[i],id=str(i),prev_id=str(i-1))
                         }
                     ]
                 }
@@ -76,7 +78,7 @@ async def send_periodic_message(uri):
                 "type": "response.create",
                 "response": {
                     "modalities": ["text"],  # , "audio"],
-                    "instructions": "Respond as a coach and prepend 'Coach:' to the response. The response should always be a string",
+                    "instructions": realtime_api_test_adhoc_session_instructions_606,#"Respond as a coach and prepend 'Coach:' to the response. The response should always be a string",
                     "voice": "alloy",
                     "output_audio_format": "pcm16",
                     "tools": [],
