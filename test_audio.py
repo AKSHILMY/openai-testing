@@ -78,7 +78,7 @@ async def send_periodic_message(uri):
                 "event_id": "event_234",
                 "type": "response.create",
                 "response": {
-                    "modalities": ["text"],#, "audio"],
+                    "modalities": ["text","audio"],
                     "instructions": realtime_api_test_adhoc_session_instructions_606,#"Respond as a coach and prepend 'Coach:' to the response. The response should always be a string",
                     "voice": "alloy",
                     "output_audio_format": "pcm16",
