@@ -5,3 +5,4 @@ websockets
 fastapi
 websocket-client
 rel
+pyaudio
