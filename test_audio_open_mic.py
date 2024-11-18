@@ -16,7 +16,7 @@ CHUNK = 1024  # Number of audio samples per chunk
 FORMAT = pyaudio.paInt16  # Format of audio (16-bit PCM)
 CHANNELS = 1  # Mono audio
 RATE = 24000  # Sample rate (Hz)
-
+audio_data = bytearray()
 def on_error(ws, error):
     print(f"ON ERROR : {error}")
 
@@ -54,7 +54,14 @@ def on_open(ws):
     ws.send(json.dumps(session_update_event))
 
 def on_message(ws, message):
-    print(f"ON MESSAGE : {message}")
+    data_json = json.loads(message)
+    res = data_json.get('response')
+    if res:
+        print(f"RESPONSE : {res}")
+    audio_res = data_json.get('audio_response')
+    if audio_res:
+        # print(f"AUDIO_RESPONSE : {audio_res}")
+        audio_data.extend(base64.b64decode(audio_res))
 
 def audio_stream(ws):
     p = pyaudio.PyAudio()
@@ -104,3 +111,15 @@ def run_websocket():
 
 # Run the WebSocket client
 run_websocket()
+
+def save_pcm_to_wav(pcm_data, file_path, sample_rate=24000, num_channels=1, sample_width=2):
+    import wave
+    with wave.open(file_path, 'wb') as wave_file:
+        wave_file.setnchannels(num_channels)
+        wave_file.setsampwidth(sample_width)
+        wave_file.setframerate(sample_rate)
+
+        wave_file.writeframes(pcm_data)
+        print(f"PCM data saved to {file_path}")
+
+save_pcm_to_wav(audio_data, f"./test_ws_end_open_channel_{str(uuid.uuid4())}.wav")
